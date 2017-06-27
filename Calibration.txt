@@ -1,0 +1,190 @@
+RTIMULib Calibration
+
+October 13 2014
+
+RTIMULib Calibration
+Introduction
+RTIMULibDemo, RTHostIMU and RTHostIMUGL all support the generation of calibration data for the
+RTIMULib library. The end result is a file in the working directory called RTIMULib.ini that contains all of
+the generated settings. This file can then be used with the library in any other application and the library
+will operate in calibrated mode. There's no need for custom apps to have to generate the data if one of
+the standard supplied apps is used for this purpose. Since generation of the calibration data is the
+complex part, this makes writing apps that use RTIMULib a lot easier!
+RTIMULib supports the following IMU calibration options:
+•
+
+Compass min/max calibration. This is a simple scheme that obtains the minimum and maximum
+readings from the magnetometers and then scales the readings based on these values.
+
+•
+
+Compass ellipsoid fitting. This is a secondary (optional) stage to the min/max calibration that
+further refines the response by fitting an ellipsoid to the magnetometer readings and shrinking
+these coordinates so that they fit on the surface of a sphere located at the origin. This option
+requires GNU Octave on the host system.
+
+•
+
+Accelerometer calibration. This uses a simple min/max system to scale the accelerometer
+outputs to between -1g and +1g when not being artificially accelerated.
+
+Magnetometer (Compass) Calibration
+If no calibration has been performed (or an existing RTIMULib.ini file has been deleted), the app display
+will look like this:
+
+Copyright © 2014 richards-tech
+
+Page 1 of 9
+
+RTIMULib Calibration
+
+October 13 2014
+
+You can see the calibration status at the bottom right. In this case, no calibration is being performed.
+Note that RTHostIMUGL is used for this document but RTHostIMU and RTIMULibDemo all have the
+same capabilities.
+
+Compass Min/Max Calibration
+To start the calibration process, click on the “Calibrate Magnetometers” option. You'll see something like
+this:
+
+Copyright © 2014 richards-tech
+
+Page 2 of 9
+
+RTIMULib Calibration
+
+October 13 2014
+
+or:
+
+Which one is obtained depends on whether or not the ellipsoid fitting software is available. The software
+checks the following locations:
+•
+
+./RTEllipsoidFit
+
+•
+
+../RTEllipsoidFit
+
+•
+
+../../RTEllipsoidFit
+
+and checks for the presence of the Octave source file RTEllipsoidFit.m. If this is not found, the upper
+display will result and only min/max compass calibration will be available. Note that Octave needs to
+installed and working on the host system for ellipsoid fitting to work. For Windows, use:
+http://sourceforge.net/projects/octave/files/Octave%20Windows%20binaries/
+and for Ubuntu/Raspbian execute: sudo apt-get install liboctave-dev.
+The first thing to do is the min/max calibration. To do this, point one axis of the IMU straight down and
+waggle it around a bit to find the maximum (or minimum) value. The software will capture the extrema
+automatically. Turn the IMU upside down and repeat for the minimum (or maximum) value. Repeat this
+for the other two axes. You'll see something like this:
+
+Copyright © 2014 richards-tech
+
+Page 3 of 9
+
+RTIMULib Calibration
+
+October 13 2014
+
+Note that the minima and maxima are of somewhat similar absolute value for each of the axes. Press the
+“Save min/max” button to save this data. If ellipsoid fitting isn't available, this will complete the process
+and the data is written to the RTIMULib.ini file.
+
+Compass Ellipsoid Fit Calibration
+Once the min/max calibration has been completed, the display will look like this:
+
+The octant counts show how many samples have been collected in each octant (an octant is one eighth
+of the volume of a sphere, split up by positive and negative axes). To ensure good coverage, the
+software requires a minimum of 200 samples per octant. It's necessary to wave the IMU around in all
+orientations to get as many different paths across the surface of the sphere as possible.
+When at least 200 samples have been obtained in each octant, the following will be displayed:
+
+Copyright © 2014 richards-tech
+
+Page 4 of 9
+
+RTIMULib Calibration
+
+October 13 2014
+
+Note that the “Process ellipsoid” button has now been enabled. Press this and the software will run the
+Octave program RTEllipsoidFit.m in order to generate the correction data to be applied to the
+magnetometer outputs. Once the program completes (it take a second or two), the result will be written
+to the RTIMULib.ini file and the app will start using it:
+
+Copyright © 2014 richards-tech
+
+Page 5 of 9
+
+RTIMULib Calibration
+
+October 13 2014
+
+Note that now it is saying that the compass is calibrated (this means that the min/max calibration is
+operating) and that ellipsoid fitting correction is being to the result.
+It's also possible to visualize the ellipsoid using an included Octave script. The RTIMULib ellipsoid
+sample data is stored in the RTEllipsoidFit directory as a file call magRaw.dta. This is the file that the
+script mag_cal.m uses to display the raw data and the corrected data. Start Octave and then run the
+script mag_cal.m. The result is a plot something like this:
+
+Copyright © 2014 richards-tech
+
+Page 6 of 9
+
+RTIMULib Calibration
+
+October 13 2014
+
+Accelerometer Calibration
+Clicking on the “Calibrate accelerometers” button results in this display:
+
+This is what is seen if there was no previously valid data. If there was, you may see something like this:
+
+This allows a single axis to be tuned if necessary as only an axis with its check box ticked will change its
+min/max data. To get back to the initial state, press “Check All”, “Reset” and then “Uncheck All”.
+The actual calibration is best performed for each minimum and maximum at a time. Assuming starting
+with the positive X axis, position the IMU so that something close to the maximum X reading is obtained
+and then check the box for the X axis to enable it:
+
+Copyright © 2014 richards-tech
+
+Page 7 of 9
+
+RTIMULib Calibration
+
+October 13 2014
+
+Very slowly (and without jerking the IMU at all), move the IMU around to obtain the maximum value.
+Then untick the enable box. Turn the IMU around and do the same for the negative X axis:
+
+Once the minimum has been obtained by gently moving the IMU around, untick the enable box. If a
+maximum of minimum got messed up, check the enable box, press “Reset”, uncheck the enable box and
+repeat the process.
+This must be done for all three axes and then it will display something like this:
+
+Copyright © 2014 richards-tech
+
+Page 8 of 9
+
+RTIMULib Calibration
+
+October 13 2014
+
+Press “OK” to save the accelerometer calibration data to RTIMULib.ini. The main window should then
+look like:
+
+The status box now shows that the accelerometers are operating in calibrated mode. As a double check,
+if the IMU is stationary, the “Accelerometer magnitude” value should be very close to 1g. If it isn't, the
+calibration procedure should be attempted again.
+
+This work is licensed under a Creative Commons Attribution 4.0 International License.
+
+Copyright © 2014 richards-tech
+
+Page 9 of 9
+
+
