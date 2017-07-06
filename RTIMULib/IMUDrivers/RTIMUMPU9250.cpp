@@ -27,6 +27,8 @@
 #include "RTIMUMPU9250.h"
 #include "RTIMUSettings.h"
 
+#include <iostream>
+
 RTIMUMPU9250::RTIMUMPU9250(RTIMUSettings *settings) : RTIMU(settings)
 {
 
@@ -226,7 +228,8 @@ bool RTIMUMPU9250::IMUInit()
         return false;
 
     if (result != MPU9250_ID) {
-        HAL_ERROR2("Incorrect %s id %d\n", IMUName(), result);
+	std::cout << MPU9250_ID << std::endl;
+        HAL_ERROR2w("Incorrect %s id %d\n", IMUName(), result);
         return false;
     }
 
